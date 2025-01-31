@@ -1,7 +1,9 @@
 from functools import cache
 import ctypes
+import pathlib
 
-dll = ctypes.windll.LoadLibrary("./src/lib/hyphenate.dll")
+
+dll = ctypes.windll.LoadLibrary(pathlib.Path(__file__).parent / 'libhyphenate.dll')
 
 dll.hnj_hyphen_load.restype = ctypes.c_void_p
 dll.hnj_hyphen_load.argtypes = (ctypes.c_char_p, )

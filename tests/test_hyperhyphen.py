@@ -3,7 +3,7 @@ from hyperhyphen import Hyphenator
 from hyperhyphen.hyphenate import whitespace_pattern
 import re
 
-DICT_PATH = './src/lib/hyph_en_US.dic'
+DICT_PATH = './tests/hyph_en_US.dic'
 
 def test_hyperhyphen_raw():
     h = Hyphenator(mode="raw", dictpath=DICT_PATH)
