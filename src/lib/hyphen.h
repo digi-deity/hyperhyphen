@@ -63,6 +63,12 @@ typedef struct _HyphenTrans HyphenTrans;
 #define MAX_CHARS 100
 #define MAX_NAME 20
 
+#ifdef _MSC_VER
+#define DLL_EXPORT  __declspec( dllexport )
+#else
+#define DLL_EXPORT
+#endif
+
 struct _HyphenDict {
   /* user options */
   char lhmin;    /* lefthyphenmin: min. hyph. distance from the left side */
@@ -95,8 +101,8 @@ struct _HyphenTrans {
   int new_state;
 };
 
-HyphenDict *hnj_hyphen_load (const char *fn);
-HyphenDict *hnj_hyphen_load_file (FILE *f);
+DLL_EXPORT HyphenDict *hnj_hyphen_load (const char *fn);
+DLL_EXPORT HyphenDict *hnj_hyphen_load_file (FILE *f);
 void hnj_hyphen_free (HyphenDict *dict);
 
 /* obsolete, use hnj_hyphen_hyphenate2() or *hyphenate3() functions) */

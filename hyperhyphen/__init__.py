@@ -1,1 +1,0 @@
-from .hyphenate import Hyphenator

@@ -45,6 +45,12 @@
 #include <unistd.h> /* for exit */
 #endif
 
+#ifdef _MSC_VER
+#define DLL_EXPORT  __declspec( dllexport )
+#else
+#define DLL_EXPORT
+#endif
+
 #define noVERBOSE
 
 /* calculate hyphenmin values with long ligature length (2 or 3 characters
@@ -372,7 +378,7 @@ void hnj_hyphen_load_line(char * buf, HyphenDict * dict, HashTab * hashtab) {
 	    }
 }
 
-HyphenDict *
+DLL_EXPORT HyphenDict *
 hnj_hyphen_load (const char *fn)
 {
   HyphenDict *result;
@@ -387,7 +393,7 @@ hnj_hyphen_load (const char *fn)
   return result;
 }
 
-HyphenDict *
+DLL_EXPORT HyphenDict *
 hnj_hyphen_load_file (FILE *f)
 {
   HyphenDict *dict[2];
