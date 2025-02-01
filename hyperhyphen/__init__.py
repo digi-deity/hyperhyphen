@@ -1,1 +1,1 @@
-from .hyphenate import Hyphenator, to_spans
+from .core import Hyphenator, to_spans

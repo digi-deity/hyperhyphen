@@ -1,7 +1,7 @@
 import pathlib
 import re
 from itertools import zip_longest, chain, accumulate
-from typing import Literal, Iterable
+from typing import Literal
 
 from ._lib import load_dictionary, hyphenate_words_numbers, hyphenate_words_simple
 
@@ -31,8 +31,9 @@ class Hyphenator:
             "spans",
         ), "mode must be 'str' or 'int' or 'spans' or 'raw'"
 
-        if not pathlib.Path(dictpath).exists():
-            raise FileNotFoundError(f'File not found: {dictpath}')
+        p = pathlib.Path(dictpath)
+        if not p.exists():
+            raise FileNotFoundError(f'File not found: {p.absolute()}')
 
         self.mode = mode
         self.dict = load_dictionary(dictpath)

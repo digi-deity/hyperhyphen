@@ -1,9 +1,13 @@
+import os
 import pytest
 from hyperhyphen import Hyphenator
-from hyperhyphen.hyphenate import whitespace_pattern
+from hyperhyphen.core import whitespace_pattern
 import re
+import pathlib
 
-DICT_PATH = './tests/hyph_en_US.dic'
+DIR = pathlib.Path(__file__).parent.resolve(strict=False)
+
+DICT_PATH = os.environ.get('HYPH_DICT_PATH', str(DIR / 'hyph_en_US.dic'))
 
 def test_hyperhyphen_raw():
     h = Hyphenator(mode="raw", dictpath=DICT_PATH)

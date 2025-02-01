@@ -1,26 +1,70 @@
-from functools import cache
-import ctypes
+import ctypes.util
 import pathlib
+import sys
+from ctypes import *
+from functools import cache
 
+_libs_info, _libs = {}, {}
 
-dll = ctypes.windll.LoadLibrary(pathlib.Path(__file__).parent / 'libhyphenate.dll')
+def _find_library(name, dirs, search_sys):
+    if sys.platform in ("win32", "cygwin", "msys"):
+        patterns = ["{}.dll", "lib{}.dll", "{}"]
+    elif sys.platform == "darwin":
+        patterns = ["lib{}.dylib", "{}.dylib", "lib{}.so", "{}.so", "{}"]
+    else:  # assume unix pattern or plain name
+        patterns = ["lib{}.so", "{}.so", "{}"]
 
-dll.hnj_hyphen_load.restype = ctypes.c_void_p
-dll.hnj_hyphen_load.argtypes = (ctypes.c_char_p, )
+    for dir in dirs:
+        dir = pathlib.Path(dir)
+        if not dir.is_absolute():
+            dir = (pathlib.Path(__file__).parent / dir).resolve(strict=False)
+        for pat in patterns:
+            libpath = dir / pat.format(name)
+            if libpath.is_file():
+                return str(libpath)
 
-dll.parse_word.restype = ctypes.c_int
-dll.parse_word.argtypes = (ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int)
+    libpath = ctypes.util.find_library(name) if search_sys else None
+    if not libpath:
+        raise ImportError(f"Could not find library '{name}' (dirs={dirs}, search_sys={search_sys})")
 
-dll.parse_words.restype = ctypes.c_int
-dll.parse_words.argtypes = (ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int)
+    return libpath
 
+def _register_library(name, dllclass, **kwargs):
+    libpath = _find_library(name, **kwargs)
+    _libs_info[name] = {**kwargs, "path": libpath}
+    _libs[name] = dllclass(libpath)
+
+_register_library(
+    name='hyphenate',
+    dllclass=ctypes.CDLL,
+    dirs=['.'],
+    search_sys=False,
+)
+
+class struct_hyphendict (Structure):
+    pass
+
+HyphenDict = POINTER(struct_hyphendict)
+
+libhyphenate = _libs['hyphenate']
+
+libhyphenate.hnj_hyphen_load.restype = HyphenDict
+libhyphenate.hnj_hyphen_load.argtypes = (c_char_p, )
+
+libhyphenate.parse_word.restype = c_int
+libhyphenate.parse_word.argtypes = (HyphenDict, c_char_p, c_char_p, c_int, c_int, c_int, c_int, c_int, c_int)
+
+libhyphenate.parse_words.restype = c_int
+libhyphenate.parse_words.argtypes = (HyphenDict, c_char_p, c_char_p, c_int, c_int, c_int, c_int, c_int, c_int)
+
+@cache
 def load_dictionary(path: str):
-    return dll.hnj_hyphen_load(path.encode('utf-8'))
+    return libhyphenate.hnj_hyphen_load(path.encode('utf-8'))
 
 def hyphenate_words(dict, words: list[str], optn: bool, opts: bool, optnn: bool, optdd: bool):
     bwords = '\0'.join(words).encode('utf-8')
-    buffer = ctypes.create_string_buffer(len(bwords)*2)
-    result = dll.parse_words(dict, bwords, buffer, len(words), len(buffer), optn, opts, optnn, optdd)
+    buffer = create_string_buffer(len(bwords)*2)
+    result = libhyphenate.parse_words(dict, bwords, buffer, len(words), len(buffer), optn, opts, optnn, optdd)
     if result != 0:
         raise BufferError(f"Buffer overflow. Result is incomplete.")
 

@@ -5,10 +5,17 @@ build-backend = "setuptools.build_meta"
 [project]
 name = 'hyperhyphen'
 version = "1.0.0"
-requires-python = ">= 3.7"
+requires-python = ">= 3.9"
 
 [tool.setuptools.packages.find]
 include = ["hyperhyphen"]
 
 [tool.distutils.bdist_wheel]
-py-limited-api = "cp37"
+py-limited-api = "cp39"
+
+[tool.cibuildwheel]
+test-command = "pytest {project}/tests"
+test-requires = "pytest"
+
+# Disable building PyPy wheels on all platforms
+skip = "pp*"

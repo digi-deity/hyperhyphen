@@ -49,7 +49,7 @@ class CTypes(Extension):
 setup(
     ext_modules=[
         CTypes(
-            "hyperhyphen.libhyphenate",
+            "hyperhyphen.hyphenate",
             sources=["./lib/hnjalloc.c", "./lib/hyphen.c", "./lib/hyphenate.c"],
             limit_output=True,
         ),
