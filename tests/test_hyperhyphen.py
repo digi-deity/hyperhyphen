@@ -7,10 +7,10 @@ import pathlib
 
 DIR = pathlib.Path(__file__).parent.resolve(strict=False)
 
-DICT_PATH = os.environ.get('HYPH_DICT_PATH', str(DIR / 'hyph_en_US.dic'))
+LANGUAGE = 'en_US'
 
 def test_hyperhyphen_raw():
-    h = Hyphenator(mode="raw", dictpath=DICT_PATH)
+    h = Hyphenator(mode="raw", language=LANGUAGE)
     str_output = h(
         "reconciliation microprocessing\t\tmiracle      messaging character 𱍊character 𱍊character𱍊"
     )
@@ -19,8 +19,8 @@ def test_hyperhyphen_raw():
 
 
 def test_hyperhyphen_str():
-    hs = Hyphenator(mode="str", dictpath=DICT_PATH)
-    hr = Hyphenator(mode="raw", dictpath=DICT_PATH)
+    hs = Hyphenator(mode="str", language=LANGUAGE)
+    hr = Hyphenator(mode="raw", language=LANGUAGE)
 
     words = """reconciliation microprocessing\t\tmiracle      messaging character 𱍊character 𱍊character𱍊"""
 
@@ -34,7 +34,7 @@ def test_hyperhyphen_str():
 
 
 def test_hyperhyphen_syllables():
-    h = Hyphenator(mode="spans", dictpath=DICT_PATH)
+    h = Hyphenator(mode="spans", language=LANGUAGE)
     words = """reconciliation microprocessing\t\tmiracle      messaging character 𱍊character 𱍊character𱍊"""
     n_words = whitespace_pattern.sub(" ", words).count(" ") + 1
     output = h(words)
@@ -45,12 +45,12 @@ def test_hyperhyphen_syllables():
 
 
 def test_hyperhyphen_strip_error():
-    h = Hyphenator(mode="int", dictpath=DICT_PATH)
+    h = Hyphenator(mode="int", language=LANGUAGE)
 
     with pytest.raises(ValueError):
         h(" batmobile ")
 
-    h = Hyphenator(mode="str", dictpath=DICT_PATH)
+    h = Hyphenator(mode="str", language=LANGUAGE)
 
     with pytest.raises(ValueError):
         h(" batmobile ")

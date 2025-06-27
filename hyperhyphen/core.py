@@ -4,6 +4,7 @@ from itertools import zip_longest, chain, accumulate
 from typing import Literal
 
 from ._lib import load_dictionary, hyphenate_words_numbers, hyphenate_words_simple
+from .dictionaries import get_default_manager, DictionaryManager
 
 whitespace_pattern = re.compile(r'\s+')
 
@@ -21,7 +22,8 @@ def to_spans(int_output: list[int], skip_whitespace: bool=True) -> list[tuple[in
 class Hyphenator:
     def __init__(
         self,
-        dictpath: str = "/usr/share/hyphen/hyph_en_US.dic",
+        dictionary_manager: "DictionaryManager" = get_default_manager(),
+        language: str = "en_US",
         mode: Literal["raw", "str", "int", "spans"] = "str",
     ):
         assert mode in (
@@ -31,6 +33,7 @@ class Hyphenator:
             "spans",
         ), "mode must be 'str' or 'int' or 'spans' or 'raw'"
 
+        dictpath = dictionary_manager.install(language)
         p = pathlib.Path(dictpath)
         if not p.exists():
             raise FileNotFoundError(f'File not found: {p.absolute()}')
