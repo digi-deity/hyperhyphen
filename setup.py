@@ -3,7 +3,18 @@ import platform
 
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext as build_ext_orig
+from wheel.bdist_wheel import bdist_wheel
 
+
+class bdist_wheel_abi3(bdist_wheel):
+    def get_tag(self):
+        python, abi, plat = super().get_tag()
+
+        if python.startswith("cp"):
+            # on CPython, our wheels are abi3 and compatible back to 3.6
+            return "cp36", "abi3", plat
+
+        return python, abi, plat
 
 class build_ext(build_ext_orig):
     def get_export_symbols(self, ext):
@@ -55,5 +66,5 @@ setup(
             py_limited_api=True,
         ),
     ],
-    cmdclass={"build_ext": build_ext},
+    cmdclass={"build_ext": build_ext, "bdist_wheel": bdist_wheel_abi3}
 )
