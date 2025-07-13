@@ -72,29 +72,26 @@ size_t count_utf8_code_points(const char *s) {
 
 
 DLL_EXPORT int parse_word(HyphenDict *dict, char *word, char *out, int k, int kk, int optn, int opts, int optnn, int optdd) {
-    int i, j, c, n, z;
+    int i, j, c, n, z = 0;
     size_t utf8_k;
     int  nHyphCount;
     char *hyphens;
     char *hyphword;
     char hword[BUFSIZE * 2];
-    char ** rep;
-    int * pos;
-    int * cut;
+    char ** rep = NULL;
+    int * pos = NULL;
+    int * cut = NULL;
 
     /* Set aside a buffer to hold hyphen information */
     hyphens = (char *) malloc(k+5);
+    if (!hyphens) return -2;
 
-    /* now actually try to hyphenate the word */
-    rep = NULL;
-    pos = NULL;
-    cut = NULL;
     hword[0] = '\0';
 
     if (hnj_hyphen_hyphenate3(dict, word, k, hyphens, hword, &rep, &pos, &cut, 4, 3, 2, 2)) {
       free(hyphens);
-      fprintf(stderr, "hyphenation error\n");
-      exit(1);
+      // Do not exit, return error code
+      return -1;
     }
 
     if (optn){
@@ -114,14 +111,16 @@ DLL_EXPORT int parse_word(HyphenDict *dict, char *word, char *out, int k, int kk
             for (i = 0; i < utf8_k - 1; i++) {
               c++;
               if (hyphens[i] % 2 == 1) {
-                n = snprintf(out, kk, "%d ", c);
+                int n = snprintf(out, kk, "%d ", c);
+                if (n < 0 || n >= kk) break;
                 z += n;
                 out += n;
                 kk -= n;
                 c = 0;
               }
             }
-            z += snprintf(out, kk, "%d\n", c + 1);
+            int n = snprintf(out, kk, "%d\n", c + 1);
+            if (n > 0 && n < kk) z += n;
         }
     }
     else {
@@ -134,10 +133,10 @@ DLL_EXPORT int parse_word(HyphenDict *dict, char *word, char *out, int k, int kk
         for (i = 0; i < k - 1; i++) {
           if (rep[i]) free(rep[i]);
         }
-    free(rep);
-    free(pos);
-    free(cut);
+        free(rep);
     }
+    if (pos) free(pos);
+    if (cut) free(cut);
 
     free(hyphens);
 
@@ -149,13 +148,16 @@ DLL_EXPORT int parse_words(HyphenDict *dict, char *words, char *out, int n, int 
 
     for (int i = 0; i < n; i++) {
         k = strlen(words);
+        if (k < 0 || kk <= 0) return -2;
+
         z = parse_word(dict, words, out, k, kk, optn, opts, optnn, optdd);
+        if (z < 0) return z;
+
         words += k + 1;
         out += z;
         kk -= z;
 
-        if (kk < 0) {
-            // Buffer overflow
+        if (kk <= 0) {
             return -1;
         }
     }
@@ -180,6 +182,7 @@ int main(int argc, char** argv)
 
   if (argc == 1) {
       help();
+      free(progname);  // Add cleanup
       exit(1);
   }
 
@@ -205,6 +208,7 @@ int main(int argc, char** argv)
         }
         else {
           help();
+          free(progname);  // Add cleanup
           exit(1);
         }
       }
@@ -213,12 +217,12 @@ int main(int argc, char** argv)
   char *dictfile;
   dictfile = argv[arg];
 
-  /* load the hyphenation dictionary */
   if ((dict = hnj_hyphen_load(dictfile)) == NULL) {
         fprintf(stderr,
-	    "Could not load dictionary file \"%s\"\n",
-	    dictfile);
+     "Could not load dictionary file \"%s\"\n",
+     dictfile);
       fflush(stderr);
+      free(progname);  // Add cleanup
       exit(1);
   }
 
@@ -229,11 +233,12 @@ int main(int argc, char** argv)
     k = strlen(word) - 1;
     word[k] = 0;
     parse_word(dict, word, out, k, BUFSIZE*2, optn, opts, optnn, optdd);
-    printf(out);
+    fputs(out, stdout);
     fflush(stdout);
   }
 
   free(word);
+  free(progname);  // Add cleanup
   hnj_hyphen_free(dict);
   return 0;
 }

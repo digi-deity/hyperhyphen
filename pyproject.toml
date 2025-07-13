@@ -1,21 +1,38 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "Cython"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = 'hyperhyphen'
+name = "hyperhyphen"
 version = "1.0.0"
-requires-python = ">= 3.9"
+requires-python = ">= 3.13"
+description = "Hyper fast hyphenation for Python"
+authors = [
+    {name = "Laurens Janssen", email = "digi-deity@laurens.xyz"}
+]
+license = {text = "Apache-2.0"}
+readme = "README.md"
 
 [tool.setuptools.packages.find]
 include = ["hyperhyphen"]
 
-[tool.distutils.bdist_wheel]
-py-limited-api = "cp39"
+[tool.setuptools.exclude-package-data]
+pdfextract = ["*.c", "*.pxd", "*.pyx"]
 
 [tool.cibuildwheel]
-test-command = "pytest {project}/tests"
-test-requires = "pytest"
 
-# Disable building PyPy wheels on all platforms
-skip = "pp*"
+test-command = "pytest {project}/tests"
+test-requires = ["pytest", "pyarrow"]
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64", "ARM64"]
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair  -w {dest_dir} {wheel}"
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64", "aarch64"]
+repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel}"
+
+[tool.cibuildwheel.macos]
+archs = ["arm64"]
+repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"
