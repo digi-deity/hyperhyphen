@@ -51,7 +51,8 @@ setup(
         CTypes(
             "hyperhyphen.hyphenate",
             sources=["./lib/hnjalloc.c", "./lib/hyphen.c", "./lib/hyphenate.c"],
-            limit_output=True,
+            define_macros=[("Py_LIMITED_API", "0x03060000")],
+            py_limited_api=True,
         ),
     ],
     cmdclass={"build_ext": build_ext},
