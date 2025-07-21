@@ -18,7 +18,6 @@ def to_spans(int_output: list[int], skip_whitespace: bool=True) -> list[tuple[in
         (a, a + abs(l)) for a, l in zip(acc, int_output) if not skip_whitespace or l > 0
     ]
 
-
 class Hyphenator:
     def __init__(
         self,

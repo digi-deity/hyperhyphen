@@ -11,7 +11,7 @@ class bdist_wheel_abi3(bdist_wheel):
         python, abi, plat = super().get_tag()
 
         if python.startswith("cp"):
-            # on CPython, our wheels are abi3 and compatible back to 3.6
+            # on CPython, our wheels are abi3 and compatible back to 3.9
             return "cp39", "abi3", plat
 
         return python, abi, plat
@@ -62,7 +62,7 @@ setup(
         CTypes(
             "hyperhyphen.hyphenate",
             sources=["./lib/hnjalloc.c", "./lib/hyphen.c", "./lib/hyphenate.c"],
-            define_macros=[("Py_LIMITED_API", "0x03060000")],
+            define_macros=[("Py_LIMITED_API", "0x03090000")],
             py_limited_api=True,
         ),
     ],

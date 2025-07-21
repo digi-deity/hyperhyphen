@@ -4,9 +4,9 @@ import urllib.request
 from pathlib import Path
 from xml.etree import ElementTree
 
-__all__ = ['DictionaryManager', 'install', 'is_installed', 'uninstall', 'list_installed']
+from .appdirs import user_data_dir
 
-DEFAULT_DICT_PATH = Path(__file__).parent / 'data'
+DEFAULT_DICT_PATH = Path(user_data_dir('hyperhyphen', 'hyperhyphen'))
 
 DEFAULT_REPOSITORY = 'https://raw.githubusercontent.com/LibreOffice/dictionaries/master/'
 
