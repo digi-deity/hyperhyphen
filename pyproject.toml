@@ -10,6 +10,7 @@ description = "Hyper fast hyphenation for Python"
 authors = [
     {name = "Laurens Janssen", email = "digi-deity@laurens.xyz"}
 ]
+urls = {Repository = "https://github.com/digi-deity/hyperhyphen"}
 license = {text = "Apache-2.0"}
 readme = "README.md"
 
