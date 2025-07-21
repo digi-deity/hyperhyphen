@@ -21,7 +21,6 @@ include = ["hyperhyphen"]
 pdfextract = ["*.c"]
 
 [tool.cibuildwheel]
-
 test-command = "pytest {project}/tests"
 test-requires = ["pytest"]
 
