@@ -20,10 +20,6 @@ pip install hyperhyphen
 
 ## Usage
 
-Looking at your code, I can see the package supports multiple output modes. Here are usage examples to add to your `README.md`:
-
-## Usage
-
 ### Basic Usage
 
 ```python
@@ -53,7 +49,7 @@ print(result)
 ```
 
 #### Raw Mode ("raw")
-Returns hyphenated words with `=` separators, preserving original whitespace structure:
+Returns hyphenated words with `=` separators, each word is on a new line:
 ```python
 h = Hyphenator(mode="raw", language="en_US")
 result = h("The internationalization committee discussed 'telecommunications infrastructure modernization,' but extraordinary circumstances required unprecedented organizational transformations.")
